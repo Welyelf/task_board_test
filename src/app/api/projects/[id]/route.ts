@@ -21,13 +21,6 @@ export async function GET(request: NextRequest, { params }: { params: Params }) 
             createdAt: 'desc',
           },
         },
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
       },
     });
 
@@ -70,13 +63,6 @@ export async function PATCH(request: NextRequest, { params }: { params: Params }
       data: updateData,
       include: {
         tasks: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
       },
     });
 

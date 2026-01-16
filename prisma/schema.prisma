@@ -9,71 +9,38 @@ datasource db {
   provider = "postgresql"
 }
 
-// User model for authentication and task ownership
-model User {
-  id        String   @id @default(cuid())
-  email     String   @unique
-  name      String?
-  password  String   // Hash this in production
-  createdAt DateTime @default(now())
-  updatedAt DateTime @updatedAt
-
-  tasks     Task[]
-  projects  Project[]
-
-  @@map("users")
-}
-
-// Project model for organizing tasks
+// Project model (Board) - a container for tasks
 model Project {
   id          String   @id @default(cuid())
   name        String
   description String?
-  color       String?  // For UI customization
-  userId      String
-  createdAt   DateTime @default(now())
-  updatedAt   DateTime @updatedAt
+  color       String?
+  createdAt   DateTime @default(now()) @map("created_at")
+  updatedAt   DateTime @updatedAt @map("updated_at")
 
-  user  User   @relation(fields: [userId], references: [id], onDelete: Cascade)
   tasks Task[]
 
   @@map("projects")
 }
 
-// Task model - main entity
+// Task model - belongs to one project
 model Task {
   id          String     @id @default(cuid())
   title       String
   description String?
   status      TaskStatus @default(TODO)
   priority    Priority   @default(MEDIUM)
-  dueDate     DateTime?
-  userId      String
-  projectId   String?
-  createdAt   DateTime   @default(now())
-  updatedAt   DateTime   @updatedAt
-  completedAt DateTime?
+  dueDate     DateTime?  @map("due_date")
+  completedAt DateTime?  @map("completed_at")
+  projectId   String?    @map("project_id")
+  createdAt   DateTime   @default(now()) @map("created_at")
+  updatedAt   DateTime   @updatedAt @map("updated_at")
 
-  user    User     @relation(fields: [userId], references: [id], onDelete: Cascade)
-  project Project? @relation(fields: [projectId], references: [id], onDelete: SetNull)
-  tags    Tag[]
+  project Project? @relation(fields: [projectId], references: [id], onDelete: Cascade)
 
-  @@index([userId])
   @@index([projectId])
   @@index([status])
   @@map("tasks")
-}
-
-// Tag model for categorizing tasks
-model Tag {
-  id        String   @id @default(cuid())
-  name      String   @unique
-  color     String?
-  createdAt DateTime @default(now())
-
-  tasks Task[]
-
-  @@map("tags")
 }
 
 // Enums
@@ -81,7 +48,6 @@ enum TaskStatus {
   TODO
   IN_PROGRESS
   DONE
-  CANCELLED
 }
 
 enum Priority {

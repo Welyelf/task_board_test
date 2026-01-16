@@ -1,23 +1,15 @@
-import { Task, User, Project, Tag, TaskStatus, Priority } from '@prisma/client';
+import { Task, Project, TaskStatus, Priority } from '@prisma/client';
 
 // Export Prisma types
-export type { Task, User, Project, Tag, TaskStatus, Priority };
+export type { Task, Project, TaskStatus, Priority };
 
 // Extended types with relations
 export type TaskWithRelations = Task & {
-  user?: User;
   project?: Project | null;
-  tags?: Tag[];
 };
 
 export type ProjectWithTasks = Project & {
   tasks?: Task[];
-  user?: User;
-};
-
-export type UserWithTasks = User & {
-  tasks?: Task[];
-  projects?: Project[];
 };
 
 // API Response types
@@ -36,7 +28,6 @@ export interface CreateTaskInput {
   priority?: Priority;
   dueDate?: string | Date;
   projectId?: string;
-  userId: string;
 }
 
 export interface UpdateTaskInput {
@@ -54,7 +45,6 @@ export interface CreateProjectInput {
   name: string;
   description?: string;
   color?: string;
-  userId: string;
 }
 
 export interface UpdateProjectInput {
@@ -68,6 +58,5 @@ export interface TaskFilters {
   status?: TaskStatus;
   priority?: Priority;
   projectId?: string;
-  userId?: string;
   search?: string;
 }

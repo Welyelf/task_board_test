@@ -9,25 +9,11 @@ import { CreateProjectInput } from '@/types';
  */
 export async function GET(request: NextRequest) {
   try {
-    const searchParams = request.nextUrl.searchParams;
-    const userId = searchParams.get('userId');
-
-    const filters: any = {};
-    if (userId) filters.userId = userId;
-
     const projects = await prisma.project.findMany({
-      where: filters,
       include: {
-        tasks: {
-          orderBy: {
-            createdAt: 'desc',
-          },
-        },
-        user: {
+        _count: {
           select: {
-            id: true,
-            name: true,
-            email: true,
+            tasks: true,
           },
         },
       },
@@ -51,8 +37,8 @@ export async function POST(request: NextRequest) {
     const body: CreateProjectInput = await request.json();
 
     // Validate required fields
-    if (!body.name || !body.userId) {
-      return errorResponse('Name and userId are required', 400);
+    if (!body.name) {
+      return errorResponse('Name is required', 400);
     }
 
     // Create project
@@ -61,17 +47,9 @@ export async function POST(request: NextRequest) {
         name: body.name,
         description: body.description,
         color: body.color,
-        userId: body.userId,
       },
       include: {
         tasks: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
       },
     });
 

@@ -23,9 +23,6 @@ export async function GET(request: NextRequest) {
     const projectId = searchParams.get('projectId');
     if (projectId) filters.projectId = projectId;
     
-    const userId = searchParams.get('userId');
-    if (userId) filters.userId = userId;
-    
     const search = searchParams.get('search');
     if (search) {
       filters.OR = [
@@ -38,14 +35,6 @@ export async function GET(request: NextRequest) {
       where: filters,
       include: {
         project: true,
-        tags: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
       },
       orderBy: {
         createdAt: 'desc',
@@ -67,8 +56,8 @@ export async function POST(request: NextRequest) {
     const body: CreateTaskInput = await request.json();
 
     // Validate required fields
-    if (!body.title || !body.userId) {
-      return errorResponse('Title and userId are required', 400);
+    if (!body.title) {
+      return errorResponse('Title is required', 400);
     }
 
     // Create task
@@ -79,19 +68,10 @@ export async function POST(request: NextRequest) {
         status: body.status || 'TODO',
         priority: body.priority || 'MEDIUM',
         dueDate: body.dueDate ? new Date(body.dueDate) : null,
-        userId: body.userId,
         projectId: body.projectId,
       },
       include: {
         project: true,
-        tags: true,
-        user: {
-          select: {
-            id: true,
-            name: true,
-            email: true,
-          },
-        },
       },
     });
 
